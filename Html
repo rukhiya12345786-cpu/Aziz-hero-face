@@ -1,1 +1,125 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aziz Hero Face</title>
+
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  font-family:Arial;
+}
+
+video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+#buttons{
+  position:fixed;
+  bottom:20px;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  z-index:10;
+}
+
+button{
+  padding:14px 18px;
+  border:0;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<video id="camera" autoplay playsinline muted></video>
+
+<div id="buttons">
+  <button onclick="startCamera()">📷 START</button>
+  <button onclick="switchCamera()">🔄 FRONT/BACK</button>
+  <button onclick="flipCamera()">↔️ FLIP</button>
+</div>
+
+<script>
+const video = document.getElementById("camera");
+
+let facing = "user";
+let mirrored = true;
+
+async function startCamera(){
+
+  try{
+
+    if(window.currentStream){
+      window.currentStream
+        .getTracks()
+        .forEach(track => track.stop());
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+
+      video:{
+        facingMode:facing,
+        width:{ideal:1280},
+        height:{ideal:720}
+      },
+
+      audio:false
+
+    });
+
+    window.currentStream = stream;
+
+    video.srcObject = stream;
+
+    video.style.transform =
+      mirrored ? "scaleX(-1)" : "scaleX(1)";
+
+  }catch(error){
+
+    alert(
+      "Camera Error:\n" +
+      error.name + "\n" +
+      error.message
+    );
+
+    console.error(error);
+  }
+}
+
+function switchCamera(){
+
+  facing =
+    facing === "user"
+    ? "environment"
+    : "user";
+
+  mirrored = facing === "user";
+
+  startCamera();
+}
+
+function flipCamera(){
+
+  mirrored = !mirrored;
+
+  video.style.transform =
+    mirrored ? "scaleX(-1)" : "scaleX(1)";
+}
+</script>
+
+</body>
+</html>
